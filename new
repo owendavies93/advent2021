@@ -1,0 +1,21 @@
+#!/bin/sh
+
+DAY=$(date '+%d')
+
+for i in 1 2
+do
+    cat <<EOF > "bin/day$DAY-$i.pl"
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use v5.16;
+
+while (<>) {
+    chomp;
+
+}
+EOF
+done
+
+aocdl -day $DAY
