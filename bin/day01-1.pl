@@ -10,7 +10,6 @@ while (<>) {
     chomp;
     $i++ if ($_ > $last);
     $last = $_;
-
 }
 
 say $i - 1;
