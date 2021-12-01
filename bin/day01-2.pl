@@ -14,9 +14,8 @@ while (<>) {
 }
 
 my $last = -1;
-for (my $i = 0; $i < $#lines - 2; $i++) {
+for (my $i = 1; $i < $#lines - 1; $i++) {
     my $sum = sum @lines[$i .. $i + 2];
-
     $inc++ if ($sum > $last);
     $last = $sum;
 }
