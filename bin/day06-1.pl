@@ -11,8 +11,7 @@ while (<>) {
 }
 
 my $gens = 80;
-my $i = 0;
-while ($i < $gens) {
+for (1..$gens) {
     my $gen_length = scalar @timers;
     for (my $j = 0; $j < $gen_length; $j++) {
         my $t = $timers[$j];
@@ -23,8 +22,6 @@ while ($i < $gens) {
             $timers[$j]--;
         }
     }
-
-    $i++;
 }
 
 say scalar @timers;

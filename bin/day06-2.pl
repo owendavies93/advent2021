@@ -17,8 +17,7 @@ while (<>) {
 }
 
 my $gens = 256;
-my $i = 0;
-while ($i < $gens) {
+for (1..$gens) {
     my $zeros = $counts->{0};
 
     for (0..7) {
@@ -27,8 +26,6 @@ while ($i < $gens) {
 
     $counts->{6} += $zeros;
     $counts->{8} = $zeros;
-    
-    $i++;
 }
 
 say sum(values %$counts);
