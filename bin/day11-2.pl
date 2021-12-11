@@ -20,7 +20,6 @@ while (<>) {
 
 my $i = 1;
 while (1) {
-    my $flashed = {};
     my $total = 0;
 
     for (my $i = 0; $i < scalar @grid; $i++) {
@@ -29,7 +28,7 @@ while (1) {
 
     while (any { $_ > 9 } @grid) {
         for (my $i = 0; $i < scalar @grid; $i++) {
-            if ($grid[$i] > 9 && !$flashed->{$i}) {
+            if ($grid[$i] > 9) {
                 my @ns = neighbour_from_index($i);
                 for my $j (@ns) {
                     $grid[$j]++ if $grid[$j] != 0;
