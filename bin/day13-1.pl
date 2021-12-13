@@ -32,16 +32,16 @@ my @folds = ();
 while (<>) {
     chomp;
 
-    my ($dir, $val) = /fold along (\w)=(\d+)/;
-    push @folds, [$dir, $val];
+    my ($dir) = /fold along (\w)/;
+    push @folds, $dir
 }
 
-@grid = fold(\@grid, $folds[0][0], $folds[0][1]);
+@grid = fold(\@grid, $folds[0]);
 
 say sum grep { defined } flat @grid;
 
 sub fold {
-    my ($old_grid, $dir, $val) = @_;
+    my ($old_grid, $dir) = @_;
 
     my $new_width = scalar @$old_grid - 1;
     my $new_height = scalar @{$old_grid->[0]} - 1;

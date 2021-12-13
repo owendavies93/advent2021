@@ -29,18 +29,17 @@ my @folds = ();
 while (<>) {
     chomp;
 
-    my ($dir, $val) = /fold along (\w)=(\d+)/;
-    push @folds, [$dir, $val];
+    my ($dir) = /fold along (\w)/;
+    push @folds, $dir;
 }
 
-for my $f (@folds) {
-    @grid = fold(\@grid, $f->[0], $f->[1]);
-}
+
+@grid = fold(\@grid, $_) for @folds;
 
 print_grid(@grid);
 
 sub fold {
-    my ($old_grid, $dir, $val) = @_;
+    my ($old_grid, $dir) = @_;
 
     my $new_width = scalar @$old_grid - 1;
     my $new_height = scalar @{$old_grid->[0]} - 1;
