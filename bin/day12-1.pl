@@ -18,7 +18,7 @@ sub get_all_paths {
     return 1 if $cur eq 'end';
 
     local $seen->{$cur} = 1 if $cur =~ /^[a-z]/;
-    
+
     my $paths = 0;
     for my $e (@{$edges->{$cur}}) {
         $paths += get_all_paths($e, $seen) if (!$seen->{$e});
