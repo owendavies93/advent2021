@@ -4,7 +4,8 @@ use warnings;
 
 use v5.16;
 
-use Graph::Dijkstra;
+use List::PriorityQueue;
+use List::Util qw(sum);
 
 my $width;
 my $height = 0;
@@ -17,7 +18,7 @@ while (<>) {
     push @grid, @l;
 
     for my $times (1..4) {
-        my @new = map { 
+        my @new = map {
             adjust_risk($_, $times)
         } @l;
         push @grid, @new;
@@ -25,29 +26,51 @@ while (<>) {
 
     $height++;
 }
-
 $height *= 5;
-my @cpy = @grid;
+my $end = $height * $width - 1;
 
+my @cpy = @grid;
 for my $times (1..4) {
     my @new = map { adjust_risk($_, $times) } @cpy;
     push @grid, @new;
 }
 
-my $graph = Graph::Dijkstra->new( { edgedefault => 'directed' } );
-
-my $end = $height * $width - 1;
-$graph->node( { id => $_ } ) for (0..$end); 
-
+my $edge_list = {};
 for (my $i = 0; $i < scalar @grid; $i++) {
     for my $n (neighbour_from_index($i)) {
-        $graph->edge( { sourceID => $i, targetID => $n, weight => $grid[$n] } );
+        $edge_list->{$i}->{$n} = $grid[$n];
     }
 }
 
-my $route = { originID => 0, destinationID => $end };
-my $risk  = $graph->shortestPath($route);
-say $risk;
+my $dist = {};
+my $prev = {};
+my $q = List::PriorityQueue->new();
+my @path;
+
+$dist->{0} = 0;
+$q->insert(0, 0);
+
+while (1) {
+    my $c = $q->pop();
+    if ($c == $end) {
+        while ($c != 0) {
+            my $p = $prev->{$c};
+            push @path, $edge_list->{$p}->{$c};
+            $c = $p;
+        }
+        say sum @path;
+        exit;
+    }
+
+    for my $n (keys %{$edge_list->{$c}}) {
+        my $new_dist = $dist->{$c} + $edge_list->{$c}->{$n};
+        if (!defined $dist->{$n} || $new_dist < $dist->{$c}) {
+            $dist->{$n} = $new_dist;
+            $q->insert($n, $new_dist);
+            $prev->{$n} = $c;
+        }
+    }
+}
 
 sub check_bounds {
     my $index = shift;
