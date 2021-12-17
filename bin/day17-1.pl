@@ -6,8 +6,7 @@ $file = 'inputs/day17-test' if $file eq 'test';
 open(my $fh, '<', $file) or die $!;
 my $area = scalar <$fh>;
 
-my ($tx1, $tx2, $ty1, $ty2) =
-    $area =~ /x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)/;
+my ($tx1, $tx2, $ty1, $ty2) = $area =~ /(-?\d+)/g;
 
 my $maxy = 0;
 for my $initvx (0..$tx2) {
@@ -19,15 +18,11 @@ for my $initvx (0..$tx2) {
         my $candidate = 0;
         my $max_this_run = 0;
         
-        ($x, $y, $vx, $vy) = step($x, $y, $vx, $vy);
-
-        while (!gone($x, $y, $tx1, $tx2, $ty1, $ty2, $vx)) {
-            $candidate = 1 if in($x, $y, $tx1, $tx2, $ty1, $ty2);
-
+        do {
             ($x, $y, $vx, $vy) = step($x, $y, $vx, $vy);
-
+            $candidate = 1 if in($x, $y, $tx1, $tx2, $ty1, $ty2);
             $max_this_run = $y if $y > $max_this_run;
-        }
+        } while (!gone($x, $y, $tx1, $tx2, $ty1, $ty2, $vx));
 
         if ($candidate == 1 && $max_this_run > $maxy) {
             $maxy = $max_this_run;

@@ -6,8 +6,7 @@ $file = 'inputs/day17-test' if $file eq 'test';
 open(my $fh, '<', $file) or die $!;
 my $area = scalar <$fh>;
 
-my ($tx1, $tx2, $ty1, $ty2) =
-    $area =~ /x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)/;
+my ($tx1, $tx2, $ty1, $ty2) = $area =~ /(-?\d+)/g;
 
 my $total = {};
 for my $initvx (0..$tx2) {
@@ -17,14 +16,12 @@ for my $initvx (0..$tx2) {
         my $vx = $initvx;
         my $vy = $initvy;
         
-        ($x, $y, $vx, $vy) = step($x, $y, $vx, $vy);
-
-        while (!gone($x, $y, $tx1, $tx2, $ty1, $ty2, $vx)) {
-            if (in($x, $y, $tx1, $tx2, $ty1, $ty2)) {
-                $total->{"$initvx, $initvy"} = 1;
-            }
+        do {
             ($x, $y, $vx, $vy) = step($x, $y, $vx, $vy);
-        }
+            if (in($x, $y, $tx1, $tx2, $ty1, $ty2)) {
+                $total->{"$initvx,$initvy"} = 1;
+            }
+        } while (!gone($x, $y, $tx1, $tx2, $ty1, $ty2, $vx));
     }
 }
 
