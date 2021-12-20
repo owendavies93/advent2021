@@ -8,7 +8,7 @@ open(my $fh, '<', $file) or die $!;
 my $width;
 my $height = 0;
 
-my @grid = ();
+my $grid = {};
 my $algo = scalar(<$fh>);
 chomp($algo);
 my @algo = map { $_ eq '#' ? 1 : 0 } split //, $algo;
@@ -16,64 +16,64 @@ my @algo = map { $_ eq '#' ? 1 : 0 } split //, $algo;
 while (<$fh>) {
     chomp;
     next if !$_;
-    my @l = map { $_ eq '#' ? 1 : 0 } split //;
-    $width = scalar @l if !defined $width;
-    push @grid, @l;
+    $width = 0;
+    for (split //) {
+        $grid->{$width,$height} = $_ eq '#' ? 1 : 0;
+        $width++;
+    }
     $height++;
 }
 
+my $minx = 0;
+my $miny = 0;
+my $maxx = $width - 1;
+my $maxy = $height - 1;
+
 step($_ % 2 == 0) for (1..2);
 
-say scalar grep { $_ == 1 } @grid;
+say scalar keys %$grid;
 
 sub step {
     my $default = shift;
-    extend_grid();
-    my @cpy = @grid;
-    for (my $i = 0; $i < scalar @grid; $i++) {
-        my $bi = get_binary_index($i, $default);
-        $cpy[$i] = ($algo[$bi] == $default);
+    my $next_grid = {};
+    $minx -= 1;
+    $maxx += 1;
+    $miny -= 1;
+    $maxy += 1;
+
+    for my $y ($miny..$maxy) {
+        for my $x ($minx..$maxx) {
+            my $bi = get_binary_index($x, $y, $default);
+            $next_grid->{$x,$y}++ if $algo[$bi] == $default;
+        }
     }
-    @grid = @cpy;
+    $grid = $next_grid;
 }
 
 sub get {
-    my ($index, $default) = @_;
-    if ($index >= 0 && $index < scalar @grid) {
-        return $grid[$index] != $default;
-    } else {
-        return $default;
-    }
+    my ($x, $y) = @_;
+    return $grid->{$x, $y} // 0;
 }
 
-sub neighbour_from_index {
-    my $i = shift;
-
-    my @cans = (
-        $i - $width - 1, $i - $width, $i - $width + 1,
-        $i - 1, $i, $i + 1,
-        $i + $width - 1, $i + $width, $i + $width + 1
-    );
-    return @cans;
+sub neighbours {
+    my @ns = ();
+    for my $y (-1..1) {
+        for my $x (-1..1) {
+            push @ns, [$x, $y];
+        }
+    }
+    return @ns;
 }
 
 sub get_binary_index {
-    my ($grid_index, $default) = @_;
-    my @ns = neighbour_from_index($grid_index);
-    my $nv = join '', map { get($_, $default) } @ns;
+    my ($x, $y, $default) = @_;
+
+    my $nv = join '', map {
+        my ($dx, $dy) = @$_;
+        get($x + $dx, $y + $dy);
+    } neighbours();
+
+    $nv =~ tr/10/01/ if $default;
     return oct('0b' . $nv);
-}
-
-sub extend_grid {
-    splice @grid, 0, 0, split //, 0 x $width;
-    splice @grid, scalar @grid, 0, split //, 0 x $width;
-
-    $height += 2;
-    $width += 2;
-    
-    for (my $row = 0; $row < $height; $row++) {
-        splice @grid, $row * $width, 0, 0;
-        splice @grid, $row * $width + ($width - 1), 0, 0;
-    }
 }
 
