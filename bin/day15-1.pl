@@ -4,6 +4,10 @@ use warnings;
 
 use v5.16;
 
+use lib '../cheatsheet/lib';
+
+use Advent::Grid::Dense::Square;
+
 use List::PriorityQueue;
 use List::Util qw(sum);
 
@@ -20,12 +24,12 @@ while (<>) {
 }
 my $end = $height * $width - 1;
 
-my $edge_list = {};
-for (my $i = 0; $i < scalar @grid; $i++) {
-    for my $n (neighbour_from_index($i)) {
-        $edge_list->{$i}->{$n} = $grid[$n];
-    }
-}
+my $g = Advent::Grid::Dense::Square->new({
+    grid  => \@grid,
+    width => $width,
+});
+
+my $edge_list = $g->edge_list();
 
 my $dist = {};
 my $prev = {};
@@ -55,24 +59,5 @@ while (1) {
             $prev->{$n} = $c;
         }
     }
-}
-
-sub check_bounds {
-    my $index = shift;
-    return ($index >= 0 && $index < scalar @grid);
-}
-
-sub neighbour_from_index {
-    my $i = shift;
-
-    my @cans;
-    if ($i % $width == 0) {
-        @cans = ($i + 1, $i + $width, $i - $width);
-    } elsif ($i % $width == ($width - 1)) {
-        @cans = ($i - 1, $i + $width, $i - $width);
-    } else {
-        @cans = ($i + 1, $i - 1, $i + $width, $i - $width);
-    }
-    return grep { check_bounds($_) } @cans;
 }
 
